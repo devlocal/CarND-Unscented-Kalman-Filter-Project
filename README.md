@@ -38,7 +38,7 @@ Accuracy comparison between UKF and EKF is shown in the table and chart below.
 
 | Algorithm  | X RMSE | Y RMSE | VX RMSE | VY RMSE |
 |:----------:|:------:|:------:|:-------:|:-------:|
-| UKF        | 0.0632 | 0.0920 | 0.3341  | 0.2379  |
+| UKF        | 0.0611 | 0.0881 | 0.0881  | 0.2295  |
 | EKF        | 0.0973 | 0.0855 | 0.4513  | 0.4399  |
 
 ![Accuracy Comparison](media/accuracy.png)
@@ -47,7 +47,7 @@ UKF provides better accuracy compared to EKF except 'Y RMSE' where EKF performed
 
 ## Parameters Initialization
 
-Initial values of `std_a_` and `std_yawdd_` have been changed from `30.0` to `0.3 both`. As has been confirmed by computing NIS metric, these initial values allow to make estimations with proper certainty.
+Initial values of `std_a_` and `std_yawdd_` have been changed from `30.0` to `0.4 both`. As has been confirmed by computing NIS metric, these initial values allow to make estimations with proper certainty.
 
 ## NIS
 
