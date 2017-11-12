@@ -3,6 +3,7 @@
 
 #include "measurement_package.h"
 #include "Eigen/Dense"
+#include "nis.h"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -15,12 +16,6 @@ public:
 
   ///* initially set to false, set to true in first call of ProcessMeasurement
   bool is_initialized_;
-
-  ///* if this is false, laser measurements will be ignored (except for init)
-  bool use_laser_;
-
-  ///* if this is false, radar measurements will be ignored (except for init)
-  bool use_radar_;
 
   ///* state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
   VectorXd x_;
@@ -59,14 +54,39 @@ public:
   VectorXd weights_;
 
   ///* State dimension
-  int n_x_;
+  static constexpr int n_x_ = 5;
 
   ///* Augmented state dimension
-  int n_aug_;
+  static constexpr int n_aug_ = 7;
+
+  // Measurement dimension, radar can measure r, phi, and r_dot
+  int n_z_radar_ = 3;
+  int n_z_lidar_ = 2;
 
   ///* Sigma point spreading parameter
   double lambda_;
 
+  // Previous measurement timestamp
+  long prev_timestamp_;
+
+  // Measurement covariance matrix S
+  MatrixXd S_radar_;
+  MatrixXd S_lidar_;
+
+  // Mean predicted measurement
+  VectorXd z_pred_radar_;
+  VectorXd z_pred_lidar_;
+
+  // Measurement noise covariance
+  MatrixXd R_radar_;
+  MatrixXd R_lidar_;
+
+  // Matrix for sigma points in measurement space
+  MatrixXd Zsig_radar_;
+  MatrixXd Zsig_lidar_;
+
+  ukf::Nis nis_radar_;
+  ukf::Nis nis_lidar_;
 
   /**
    * Constructor
@@ -82,26 +102,53 @@ public:
    * ProcessMeasurement
    * @param meas_package The latest measurement data of either radar or laser
    */
-  void ProcessMeasurement(MeasurementPackage meas_package);
+  void ProcessMeasurement(const MeasurementPackage &meas_package);
+
+  /**
+   * Generates sigma points
+   */
+  MatrixXd GenerateSigmaPoints();
 
   /**
    * Prediction Predicts sigma points, the state, and the state covariance
    * matrix
    * @param delta_t Time between k and k+1 in s
    */
-  void Prediction(double delta_t);
+  void PredictSigmaPoints(double delta_t, MatrixXd &Xsig_aug);
+
+  /**
+   * Predicts Mean and Covariance matrices
+   */
+  void PredictMeanAndCovariance();
+
+  /**
+   * Predicts radar measurement
+   */
+  void PredictRadarMeasurement();
+
+  /**
+   * Predicts lidar measurement
+   */
+  void PredictLidarMeasurement();
+
+  /**
+   * Normalizes angle
+   * @param angle arbitrary angle value
+   * @return angle value in range -pi..+pi
+   */
+  static double NormalizeAngle(double angle);
 
   /**
    * Updates the state and the state covariance matrix using a laser measurement
    * @param meas_package The measurement at k+1
    */
-  void UpdateLidar(MeasurementPackage meas_package);
+  void UpdateLidar(const MeasurementPackage &meas_package);
 
   /**
    * Updates the state and the state covariance matrix using a radar measurement
    * @param meas_package The measurement at k+1
    */
-  void UpdateRadar(MeasurementPackage meas_package);
+  void UpdateRadar(const MeasurementPackage &meas_package);
 };
 
 #endif /* UKF_H */
