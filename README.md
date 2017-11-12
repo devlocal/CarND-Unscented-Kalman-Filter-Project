@@ -26,6 +26,14 @@ A helper function `NormalizeAngle` has been added to bring angle values to the r
 
 `Tools::CalculateRMSE` has been implemented to compute RMSE.
 
+## Parameters Initialization
+
+Most of the parameters are initialized in the constructor of the `UKF` class (lines 19-83 in ukf.cpp)
+
+Initial values of `std_a_` and `std_yawdd_` have been changed from `30.0` to `0.4` both. As has been confirmed by computing NIS metric, these initial values allow to make estimations with proper certainty.
+
+First measurement is used to set filter values (lines 93-112 of ukf.cpp). If the first measurement is a laser measurement, the filter initializes values of `x_` by taking measured values directly. If the first measurement is a radar measurement, the filter initializes `x_` by converting measured values form polar to cartesian coordinates. For both types of first measurement state covariance matrix `P_` is set to identity matrix. 
+
 ## Process visualization
 
 Process visualization provided by the simulator shows expected results: estimated track (green dots) is averaged from radar and lidar measurements (blue and red dots).
@@ -44,10 +52,6 @@ Accuracy comparison between UKF and EKF is shown in the table and chart below.
 ![Accuracy Comparison](media/accuracy.png)
 
 UKF provides better accuracy compared to EKF except 'Y RMSE' where EKF performed slightly better.
-
-## Parameters Initialization
-
-Initial values of `std_a_` and `std_yawdd_` have been changed from `30.0` to `0.4 both`. As has been confirmed by computing NIS metric, these initial values allow to make estimations with proper certainty.
 
 ## NIS
 
