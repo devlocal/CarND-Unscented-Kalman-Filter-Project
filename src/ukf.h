@@ -59,6 +59,9 @@ public:
   ///* Augmented state dimension
   static constexpr int n_aug_ = 7;
 
+  ///* Number of sigma points
+  static constexpr int n_sig_ = 2 * n_aug_ + 1;
+
   // Measurement dimension, radar can measure r, phi, and r_dot
   int n_z_radar_ = 3;
   int n_z_lidar_ = 2;
